@@ -71,6 +71,7 @@ namespace esphome {
 				void press(uint8_t key, bool with_timer = true);
 				void pressSpecial(uint8_t key, bool with_timer = true);
 				void release();
+				void startPairing();  // New method for pairing
 
 				void start();
 				void stop();
@@ -87,6 +88,7 @@ namespace esphome {
 				bool is_connected();
 				void update_timer();
 				void delay_ms(uint64_t ms);
+				void pairingTimerCallback();  // New callback for pairing timer
 
 				NimBLEServer 			*pServer;
 				NimBLEHIDDevice*		hid;
@@ -108,6 +110,7 @@ namespace esphome {
 				uint8_t				batteryLevel;
 				bool				_connected = false;
 				uint32_t			_delay_ms = 7;
+				bool				_pairing_active = false;  // New flag for pairing state
 
 
 				uint16_t sid		= 0x01;
