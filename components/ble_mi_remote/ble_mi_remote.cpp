@@ -1,3 +1,4 @@
+
 #ifdef USE_ESP32
 
 #include "ble_mi_remote.h"
@@ -56,7 +57,7 @@ static const uint8_t _hidReportDescriptor[] = {
 		USAGE(2),				0x2A, 0x02,		// Instance 10754 (Bookmarks)
 		HIDINPUT(1),			0x02,			// In bytes
 
-		USAGE_PAGE(2),			0x00, 0xFF,		// Vendor ??? Ð¿ÐµÑ€ÐµÑÑ‚Ð°Ð²Ð¸Ñ‚ÑŒ Ð¼ÐµÑÑ‚Ð°Ð¼Ð¸ Ð±Ð°Ð¹Ñ‚Ñ‹?
+		USAGE_PAGE(2),			0x00, 0xFF,		// Vendor ??? переставить местами байты?
 		USAGE(1),				0x00,			// Vendor
 
 		COLLECTION(1),			0x01,			// Application
@@ -239,33 +240,6 @@ namespace esphome {
 			this->set_timeout((const std::string) TAG, _release_delay, [this]() { this->release(); });
 		}
 
-		void BleMiRemote::startPairing() {
-			if (!this->is_connected()) {
-				ESP_LOGI(TAG, "Cannot start pairing - device not connected");
-				return;
-			}
-
-			if (_pairing_active) {
-				ESP_LOGI(TAG, "Pairing already in progress");
-				return;
-			}
-
-			ESP_LOGI(TAG, "Starting pairing sequence - pressing Home and Select for 10 seconds");
-			_pairing_active = true;
-
-			// Press Home (Android TV) and Select buttons without timer
-			pressSpecial(SPECIAL_ANDROID_HOME, false);
-			pressSpecial(SPECIAL_TASK_SELECT, false);
-
-			// Set timer for 10 seconds to release the buttons
-			this->set_timeout("pairing_timer", 10000, [this]() { this->pairingTimerCallback(); });
-		}
-
-		void BleMiRemote::pairingTimerCallback() {
-			ESP_LOGI(TAG, "Pairing sequence complete - releasing buttons");
-			_pairing_active = false;
-			this->release();
-		}
 
 		void BleMiRemote::sendReport(KeyReport *keys) {
 			if (this->is_connected()) {
