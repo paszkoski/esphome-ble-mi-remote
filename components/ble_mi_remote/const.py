@@ -178,10 +178,13 @@ SPECIAL_KEY: Final = [
         CONF_ID: "key_bookmarks",
         CONF_ICON: "mdi:bookmark-box-outline",
         CONF_VALUE: 23
-    },{
-        CONF_NAME: "Pairing",
-        CONF_ID: "key_pairing",
-        CONF_ICON: "mdi:bluetooth-connect"
-        # No CONF_VALUE - this button uses special logic
     }
 ]
+
+"""Pairing button config"""
+PAIR_BUTTON: Final = {
+    CONF_NAME: "Pairing",
+    CONF_ID: "key_pair",
+    CONF_ICON: "mdi:bluetooth-connect"
+}
+
