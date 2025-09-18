@@ -84,7 +84,7 @@ SPECIAL_KEY: Final = [
         CONF_ICON: "mdi:arrow-right-drop-circle-outline",
         CONF_VALUE: 4
     },{        
-        CONF_NAME: "Power",
+        CONF_NAME: "Wlacz",
         CONF_ID: "key_power",
         CONF_ICON: "mdi:power-cycle",
         CONF_VALUE: 5
