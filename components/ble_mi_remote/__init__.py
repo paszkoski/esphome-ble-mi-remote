@@ -33,6 +33,7 @@ from .const import (
     ACTION_START_CLASS,
     ACTION_STOP_CLASS,
     SPECIAL_KEY,
+    PAIR_BUTTON,
     COMPONENT_BUTTON_CLASS,
     COMPONENT_CLASS,
     CONF_RECONNECT,
@@ -108,12 +109,23 @@ async def adding_special_keys(var: MockObj, config: dict) -> None:
         cg.add(new_key.set_parent(var))
 
         if CONF_VALUE not in key:
-            # Special case for pairing button - use -2 as identifier
-            if key[CONF_ID] == "key_pairing":
-                cg.add(new_key.set_value(-2))
             continue
 
         cg.add(new_key.set_value(key[CONF_VALUE]))
+
+    # Add a dedicated Pairing button which holds Home+Select for 10s
+    pairing_btn: MockObj = await button.new_button(
+        {
+            CONF_ID: cv.declare_id(BleMiRemoteButton)(PAIR_BUTTON[CONF_ID]),
+            CONF_NAME: (config[CONF_NAME] or DOMAIN.replace("_", " ")) + " " + PAIR_BUTTON[CONF_NAME],
+            CONF_ICON: PAIR_BUTTON[CONF_ICON],
+            CONF_DISABLED_BY_DEFAULT: False
+        }
+    )
+    cg.add(pairing_btn.set_parent(var))
+    # Home (Android TV) is 18, Select is 9
+    cg.add(pairing_btn.set_pair_keys(18, 9))
+    cg.add(pairing_btn.set_pair_duration(10000))
 
 
 async def adding_binary_sensors(var: MockObj, config: dict) -> None:
@@ -217,11 +229,7 @@ async def ble_mi_remote_press_to_code(
         template_ = template_.lower()
         for i, k in enumerate(SPECIAL_KEY):
             if k[CONF_NAME].lower() == template_:
-                if k[CONF_ID] == "key_pairing":
-                    # Special handling for pairing - call startPairing method directly
-                    cg.add(var.set_special(-2))  # Use -2 to identify pairing
-                elif CONF_VALUE in k:
-                    cg.add(var.set_special(k[CONF_VALUE]))
+                cg.add(var.set_special(k[CONF_VALUE]))
                 break
     return var
 
