@@ -43,6 +43,7 @@ ACTION_START_CLASS: Final = "BleMiRemoteStartAction"
 ACTION_STOP_CLASS: Final = "BleMiRemoteStopAction"
 ACTION_PRINT_CLASS: Final = "BleMiRemotePrintAction"
 ACTION_PRESS_CLASS: Final = "BleMiRemotePressAction"
+ACTION_HOLD_CLASS: Final = "BleMiRemoteHoldAction"
 ACTION_RELEASE_CLASS: Final = "BleMiRemoteReleaseAction"
 ACTION_COMBINATION_CLASS: Final = "BleMiRemoteCombinationAction"
 
@@ -180,4 +181,3 @@ SPECIAL_KEY: Final = [
         CONF_VALUE: 23
     }
 ]
-
