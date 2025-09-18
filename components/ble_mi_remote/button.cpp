@@ -1,4 +1,3 @@
-
 #ifdef USE_ESP32
 
 #include "button.h"
@@ -12,6 +11,9 @@ namespace esphome {
 		void BleMiRemoteButton::press_action() {
 			if (value_ > -1) {
 				parent_->pressSpecial((uint8_t) value_);
+			} else if (value_ == -2) {
+				// Special value for pairing button
+				parent_->startPairing();
 			} else {
 				parent_->release();
 			}
