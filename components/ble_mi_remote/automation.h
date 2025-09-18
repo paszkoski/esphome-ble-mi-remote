@@ -19,24 +19,12 @@ namespace esphome {
 					if (this->key_.has_value()) {
 						this->ble_mi_remote_->press(this->key_.value(x...));
 					} else if (this->special_.has_value()) {
-						this->ble_mi_remote_->pressSpecial(this->special_.value(x...));
-					}
-				}
-			protected:
-				BleMiRemote *ble_mi_remote_;
-		};
-
-		template<typename... Ts> class BleMiRemoteHoldAction : public Action<Ts...> {
-			public:
-				explicit BleMiRemoteHoldAction(BleMiRemote *ble_mi_remote) : ble_mi_remote_(ble_mi_remote) {}
-				TEMPLATABLE_VALUE(uint8_t, key)
-				TEMPLATABLE_VALUE(uint8_t, special)
-
-				void play(Ts... x) override {
-					if (this->key_.has_value()) {
-						this->ble_mi_remote_->press(this->key_.value(x...), false);
-					} else if (this->special_.has_value()) {
-						this->ble_mi_remote_->pressSpecial(this->special_.value(x...), false);
+						uint8_t special_val = this->special_.value(x...);
+						if (special_val == 254) {  // Special value for pairing (-2 as uint8_t)
+							this->ble_mi_remote_->startPairing();
+						} else {
+							this->ble_mi_remote_->pressSpecial(special_val);
+						}
 					}
 				}
 			protected:
