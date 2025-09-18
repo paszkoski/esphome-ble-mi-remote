@@ -11,7 +11,7 @@
 #include <string>
 
 
-const uint8_t SPECIAL_KEYS_COUNT = 24;
+const uint8_t SPECIAL_KEYS_COUNT = 25;
 
 const uint8_t SPECIAL_MENU_PICK = 0;
 const uint8_t SPECIAL_MENU_UP = 1;
