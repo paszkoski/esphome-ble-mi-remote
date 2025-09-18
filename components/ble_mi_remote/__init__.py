@@ -28,6 +28,7 @@ from esphome.cpp_generator import LambdaExpression, MockObj, TemplateArguments
 from .const import (
     ACTION_COMBINATION_CLASS,
     ACTION_PRESS_CLASS,
+    ACTION_HOLD_CLASS,
     ACTION_PRINT_CLASS,
     ACTION_RELEASE_CLASS,
     ACTION_START_CLASS,
@@ -184,6 +185,60 @@ async def ble_mi_remote_press_to_code(
     config: dict, action_id: ID, template_arg: TemplateArguments, args: list
 ) -> MockObj:
     """Action press
+
+    :param config: dict
+    :param action_id: ID
+    :param template_arg: TemplateArguments
+    :param args: list
+    :return: MockObj
+    """
+
+    paren: MockObj = await cg.get_variable(config[CONF_ID])
+    var: MockObj = cg.new_Pvariable(action_id, template_arg, paren)
+
+
+    template_: LambdaExpression = await cg.templatable(config[CONF_CODE], args, cv.string)
+    
+    is_number = True;
+
+    try:
+        config[CONF_CODE] = int(template_)
+    except:
+        try:
+            config[CONF_CODE] = int(template_, 16)
+        except:
+            is_number = False
+    
+    if is_number:
+        cg.add(var.set_key(template_))
+    else:
+        template_ = template_.lower()
+        for i, k in enumerate(SPECIAL_KEY):
+            if k[CONF_NAME].lower() == template_:
+                cg.add(var.set_special(k[CONF_VALUE]))
+                break
+    return var
+
+
+BleMiRemoteHoldAction = ble_mi_remote_ns.class_(ACTION_HOLD_CLASS, automation.Action)
+
+
+@automation.register_action(
+    f"{DOMAIN}.hold",
+    BleMiRemoteHoldAction,
+    OPERATION_BASE_SCHEMA.extend(
+        {
+            cv.Required(CONF_CODE): cv.Any(
+                cv.templatable(cv.uint8_t),
+                cv.templatable(cv.string)
+            )
+        }
+    )
+)
+async def ble_mi_remote_hold_to_code(
+    config: dict, action_id: ID, template_arg: TemplateArguments, args: list
+) -> MockObj:
+    """Action hold
 
     :param config: dict
     :param action_id: ID
