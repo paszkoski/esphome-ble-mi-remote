@@ -363,4 +363,171 @@ namespace esphome {
 				0x0a | SHIFT,      // G
 				0x0b | SHIFT,      // H
 				0x0c | SHIFT,      // I
-				0x0
+				0x0d | SHIFT,      // J
+				0x0e | SHIFT,      // K
+				0x0f | SHIFT,      // L
+				0x10 | SHIFT,      // M
+				0x11 | SHIFT,      // N
+				0x12 | SHIFT,      // O
+				0x13 | SHIFT,      // P
+				0x14 | SHIFT,      // Q
+				0x15 | SHIFT,      // R
+				0x16 | SHIFT,      // S
+				0x17 | SHIFT,      // T
+				0x18 | SHIFT,      // U
+				0x19 | SHIFT,      // V
+				0x1a | SHIFT,      // W
+				0x1b | SHIFT,      // X
+				0x1c | SHIFT,      // Y
+				0x1d | SHIFT,      // Z
+				0x2f,          // [
+				0x31,          // bslash
+				0x30,          // ]
+				0x23 | SHIFT,    // ^
+				0x2d | SHIFT,    // _
+				0x35,          // `
+				0x04,          // a
+				0x05,          // b
+				0x06,          // c
+				0x07,          // d
+				0x08,          // e
+				0x09,          // f
+				0x0a,          // g
+				0x0b,          // h
+				0x0c,          // i
+				0x0d,          // j
+				0x0e,          // k
+				0x0f,          // l
+				0x10,          // m
+				0x11,          // n
+				0x12,          // o
+				0x13,          // p
+				0x14,          // q
+				0x15,          // r
+				0x16,          // s
+				0x17,          // t
+				0x18,          // u
+				0x19,          // v
+				0x1a,          // w
+				0x1b,          // x
+				0x1c,          // y
+				0x1d,          // z
+				0x2f | SHIFT,    // {
+				0x31 | SHIFT,    // |
+				0x30 | SHIFT,    // }
+				0x35 | SHIFT,    // ~
+				0				// DEL
+		};
+
+		uint8_t USBPutChar(uint8_t c);
+
+		void BleMiRemote::press(uint8_t k, bool with_timer) {
+			if (this->is_connected()) {
+				if (with_timer) {
+					this->update_timer();
+				}
+
+				uint8_t i;
+				if (k >= 136) {			// it's a non-printing key (not a modifier)
+					k = k - 136;
+				} else if (k >= 128) {	// it's a modifier key
+					_keyReport.modifiers |= (1 << (k - 128));
+					k = 0;
+				} else {				// it's a printing key
+					k = pgm_read_byte(_asciimap + k);
+					if (!k) {
+
+						return;
+					}
+					if (k & 0x80) {						// it's a capital letter or other character reached with shift
+						_keyReport.modifiers |= 0x02;	// the left shift modifier
+						k &= 0x7F;
+					}
+				}
+
+				// Add k to the key report only if it's not already present
+				// and if there is an empty slot.
+				if (_keyReport.keys[0] != k && _keyReport.keys[1] != k && _keyReport.keys[2] != k && _keyReport.keys[3] != k && _keyReport.keys[4] != k && _keyReport.keys[5] != k) {
+
+					for (i = 0; i < 6; i++) {
+						if (_keyReport.keys[i] == 0x00) {
+							_keyReport.keys[i] = k;
+							break;
+						}
+					}
+					if (i == 6) {
+						return;
+					}
+				}
+				sendReport (&_keyReport);
+			}
+		}
+
+		void BleMiRemote::pressSpecial(uint8_t k, bool with_timer) {
+			if (this->is_connected()) {
+				if (with_timer) {
+					this->update_timer();
+				}
+			    uint8_t bit = k % 8;
+			    uint8_t byte = int(k / 8);
+
+			    _specialKeyReport.keys[byte] |= (1 << bit);
+
+			    ESP_LOGD(TAG, "Send: %d, %d, %d", _specialKeyReport.keys[0], _specialKeyReport.keys[1], _specialKeyReport.keys[2]);
+
+			    sendReport (&_specialKeyReport);
+			}
+		}
+
+		void BleMiRemote::release() {
+			if (this->is_connected()) {
+				this->cancel_timeout((const std::string) TAG);
+
+				_keyReport.keys[0] = 0;
+				_keyReport.keys[1] = 0;
+				_keyReport.keys[2] = 0;
+				_keyReport.keys[3] = 0;
+				_keyReport.keys[4] = 0;
+				_keyReport.keys[5] = 0;
+				_keyReport.modifiers = 0;
+				_specialKeyReport.keys[0] = 0;
+				_specialKeyReport.keys[1] = 0;
+				_specialKeyReport.keys[2] = 0;
+				sendReport (&_keyReport);
+				sendReport (&_specialKeyReport);
+			}
+		}
+
+		void BleMiRemote::onConnect(NimBLEServer *pServer) {
+			this->_connected = true;
+			NimBLEConnInfo peer = pServer->getPeerInfo(0);
+
+			release();
+		}
+
+		void BleMiRemote::onDisconnect(NimBLEServer *pServer) {
+			this->_connected = false;
+		}
+
+		void BleMiRemote::onWrite(NimBLECharacteristic *me) {
+			uint8_t *value = (uint8_t*) (me->getValue().c_str());
+			(void) value;
+			ESP_LOGD(TAG, "special keys: %d", *value);
+		}
+
+		void BleMiRemote::delay_ms(uint64_t ms) {
+			uint64_t m = esp_timer_get_time();
+			if (ms) {
+				uint64_t e = (m + (ms * 1000));
+				if (m > e) { //overflow
+					while (esp_timer_get_time() > e) {
+					}
+				}
+				while (esp_timer_get_time() < e) {
+				}
+			}
+		}
+	}  // namespace ble_mi_remote
+}  // namespace esphome
+
+#endif
