@@ -43,7 +43,6 @@ ACTION_START_CLASS: Final = "BleMiRemoteStartAction"
 ACTION_STOP_CLASS: Final = "BleMiRemoteStopAction"
 ACTION_PRINT_CLASS: Final = "BleMiRemotePrintAction"
 ACTION_PRESS_CLASS: Final = "BleMiRemotePressAction"
-ACTION_HOLD_CLASS: Final = "BleMiRemoteHoldAction"
 ACTION_RELEASE_CLASS: Final = "BleMiRemoteReleaseAction"
 ACTION_COMBINATION_CLASS: Final = "BleMiRemoteCombinationAction"
 
@@ -179,5 +178,10 @@ SPECIAL_KEY: Final = [
         CONF_ID: "key_bookmarks",
         CONF_ICON: "mdi:bookmark-box-outline",
         CONF_VALUE: 23
+    },{
+        CONF_NAME: "Pairing",
+        CONF_ID: "key_pairing",
+        CONF_ICON: "mdi:bluetooth-connect"
+        # No CONF_VALUE - this button uses special logic
     }
 ]
