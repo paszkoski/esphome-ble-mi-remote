@@ -48,7 +48,7 @@ AUTO_LOAD: Final = ["binary_sensor", "button"]
 ble_mi_remote_ns = cg.esphome_ns.namespace(DOMAIN)
 
 BleMiRemote = ble_mi_remote_ns.class_(COMPONENT_CLASS, cg.PollingComponent)
-BleMiRemoteButton = ble_mi_remote_ns.class_(COMPONENT_BUTTON_CLASS, cg.Component)
+BleMiRemoteButton = ble_mi_remote_ns.class_(COMPONENT_BUTTON_CLASS, button.Button, cg.Component)
 
 CONFIG_SCHEMA: Final = cv.Schema(
     {
