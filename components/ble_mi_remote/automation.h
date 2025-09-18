@@ -19,12 +19,7 @@ namespace esphome {
 					if (this->key_.has_value()) {
 						this->ble_mi_remote_->press(this->key_.value(x...));
 					} else if (this->special_.has_value()) {
-						uint8_t special_val = this->special_.value(x...);
-						if (special_val == 254) {  // Special value for pairing (-2 as uint8_t)
-							this->ble_mi_remote_->startPairing();
-						} else {
-							this->ble_mi_remote_->pressSpecial(special_val);
-						}
+						this->ble_mi_remote_->pressSpecial(this->special_.value(x...));
 					}
 				}
 			protected:
